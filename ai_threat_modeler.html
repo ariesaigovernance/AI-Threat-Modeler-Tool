@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Threat Modeler Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #020202;
+            --panel-bg: #0a0e17;
+            --electric-blue: #00f3ff;
+            --electric-blue-dim: rgba(0, 243, 255, 0.2);
+            --electric-blue-hover: #5cffff;
+            --text-color: #e0faff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--electric-blue);
+            box-shadow: 0 0 20px var(--electric-blue-dim), inset 0 0 10px var(--electric-blue-dim);
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--electric-blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--electric-blue);
+            border-bottom: 2px dashed var(--electric-blue);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: var(--electric-blue);
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--electric-blue);
+            color: var(--electric-blue);
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+            box-sizing: border-box;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input[type="text"]:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 15px var(--electric-blue-dim);
+            background-color: rgba(0, 243, 255, 0.05);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            width: 100%;
+            background-color: transparent;
+            color: var(--electric-blue);
+            border: 2px solid var(--electric-blue);
+            padding: 15px;
+            font-size: 1.2em;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--electric-blue-dim);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--electric-blue);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--electric-blue);
+        }
+
+        #report-section {
+            display: none;
+            margin-top: 40px;
+            border-top: 2px dashed var(--electric-blue);
+            padding-top: 30px;
+        }
+
+        .report-card {
+            background-color: rgba(0, 243, 255, 0.05);
+            border: 1px solid var(--electric-blue);
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .report-card h3 {
+            margin-top: 0;
+            color: var(--electric-blue);
+            text-shadow: 0 0 5px var(--electric-blue);
+        }
+
+        .data-row {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .data-label {
+            color: var(--electric-blue);
+            font-weight: bold;
+        }
+
+        .mitigation-link {
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 1px solid var(--electric-blue);
+            transition: color 0.3s;
+        }
+
+        .mitigation-link:hover {
+            color: var(--electric-blue);
+        }
+
+        pre {
+            background: #000;
+            padding: 15px;
+            border: 1px solid #333;
+            color: #00ff00;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <h1>SYS.AI Threat Modeler</h1>
+    
+    <form id="threatForm">
+        <div class="form-group">
+            <label for="scenario">1. Select AI Threat Scenario</label>
+            <select id="scenario" required>
+                <option value="" disabled selected>-- Initialize System Scan --</option>
+                <option value="Prompt Injection / Jailbreaking">Prompt Injection / Jailbreaking</option>
+                <option value="Training Data Poisoning">Training Data Poisoning</option>
+                <option value="Model Inversion / Data Extraction">Model Inversion / Data Extraction</option>
+                <option value="Harmful Bias & Discrimination">Harmful Bias & Discrimination</option>
+                <option value="Supply Chain Compromise (Malicious Weights)">Supply Chain Compromise (Malicious Weights)</option>
+                <option value="Denial of Wallet (Resource Exhaustion)">Denial of Wallet (Resource Exhaustion)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="atlas">2. Map to MITRE ATLAS Tactic</label>
+            <select id="atlas" required>
+                <option value="" disabled selected>-- Select Tactic Vector --</option>
+                <option value="Reconnaissance (AML.TA0002)">Reconnaissance (AML.TA0002)</option>
+                <option value="Initial Access (AML.TA0001)">Initial Access (AML.TA0001)</option>
+                <option value="ML Model Access (AML.TA0012)">ML Model Access (AML.TA0012)</option>
+                <option value="Execution (AML.TA0003)">Execution (AML.TA0003)</option>
+                <option value="Defense Evasion (AML.TA0005)">Defense Evasion (AML.TA0005)</option>
+                <option value="ML Attack Staging (AML.TA0014)">ML Attack Staging (AML.TA0014)</option>
+                <option value="Impact (AML.TA0004)">Impact (AML.TA0004)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="misuse">3. Formulate Specific Misuse Scenario</label>
+            <textarea id="misuse" placeholder="E.g., Attacker bypasses NLP parser via crafted base64 prompt injection..." required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="controls">4. Existing Controls</label>
+            <input type="text" id="controls" placeholder="Describe current defenses (or 'None')" required>
+        </div>
+
+        <div class="form-group">
+            <label for="effectiveness">Control Effectiveness</label>
+            <select id="effectiveness" required>
+                <option value="" disabled selected>-- Evaluate Defenses --</option>
+                <option value="High">High (Tested, robust, actively monitored)</option>
+                <option value="Medium">Medium (Controls exist but lack comprehensive coverage)</option>
+                <option value="Low">Low (Theoretical, easily bypassed, or untested)</option>
+                <option value="None">None (No current controls)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="decision">5. Risk Routing & Decision</label>
+            <select id="decision" required>
+                <option value="" disabled selected>-- Final Verdict --</option>
+                <option value="Accept">Accept (Within tolerance)</option>
+                <option value="Mitigate">Mitigate (Implement additional controls)</option>
+                <option value="Escalate">Escalate (Send to Governance Board)</option>
+            </select>
+        </div>
+
+        <button type="button" onclick="generateReport()">Execute Analysis</button>
+    </form>
+
+    <div id="report-section">
+        <h1>Analysis Report Generated</h1>
+        
+        <div class="report-card" id="summary-card">
+            </div>
+
+        <div class="report-card" id="mitigation-card">
+            <h3>Recommended MITRE ATLAS Mitigation</h3>
+            <div id="mitigation-content">
+                </div>
+        </div>
+
+        <div class="report-card">
+            <h3>Raw JSON Artifact</h3>
+            <pre id="json-output"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+    // MITRE ATLAS Mitigation Knowledge Base
+    const mitigationMap = {
+        "Prompt Injection / Jailbreaking": {
+            id: "AML.M0020",
+            name: "GenAI Guardrails",
+            desc: "Implement a filter between the model and the user. If the input looks like an attack, block it before it reaches the model."
+        },
+        "Training Data Poisoning": {
+            id: "AML.M0007",
+            name: "Sanitize Training Data",
+            desc: "Implement a filter to limit ingested training data and remove unwanted or poisoned content."
+        },
+        "Model Inversion / Data Extraction": {
+            id: "AML.M0002",
+            name: "Passive ML Output Obfuscation",
+            desc: "Decrease the fidelity of model outputs to reduce an adversary's ability to extract sensitive training data."
+        },
+        "Harmful Bias & Discrimination": {
+            id: "AML.M0008",
+            name: "Validate AI Model",
+            desc: "Validate that machine learning models perform as intended by testing for adversarial bias or backdoor triggers."
+        },
+        "Supply Chain Compromise (Malicious Weights)": {
+            id: "AML.M0023",
+            name: "AI Bill of Materials (AI-BOM)",
+            desc: "Maintain a strict inventory of every model, dataset, and library version used to track origin and vulnerabilities."
+        },
+        "Denial of Wallet (Resource Exhaustion)": {
+            id: "AML.M0004",
+            name: "Restrict Number of ML Queries",
+            desc: "Implement strict rate limiting and token quotas per user to prevent API abuse and resource exhaustion."
+        }
+    };
+
+    function generateReport() {
+        // Form Validation
+        const form = document.getElementById('threatForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Capture Data
+        const scenario = document.getElementById('scenario').value;
+        const atlas = document.getElementById('atlas').value;
+        const misuse = document.getElementById('misuse').value;
+        const controls = document.getElementById('controls').value;
+        const effectiveness = document.getElementById('effectiveness').value;
+        const decision = document.getElementById('decision').value;
+        const timestamp = new Date().toISOString();
+
+        // Get Mitigation Data
+        const mitigation = mitigationMap[scenario];
+        let mitigationUrl = "N/A";
+        let mitigationName = "N/A";
+        let mitigationDesc = "No specific mitigation mapped.";
+
+        if (mitigation) {
+            mitigationUrl = `https://atlas.mitre.org/mitigations/${mitigation.id}`;
+            mitigationName = `${mitigation.name} (${mitigation.id})`;
+            mitigationDesc = mitigation.desc;
+        }
+
+        // Build Artifact Object
+        const assessmentRecord = {
+            timestamp: timestamp,
+            threat_scenario: scenario,
+            mitre_atlas_tactic: atlas,
+            misuse_scenario: misuse,
+            existing_controls: controls,
+            control_effectiveness: effectiveness,
+            risk_decision: decision,
+            recommended_mitigation_name: mitigationName,
+            recommended_mitigation_url: mitigationUrl
+        };
+
+        // Populate UI
+        document.getElementById('summary-card').innerHTML = `
+            <div class="data-row"><span class="data-label">TIMESTAMP:</span> ${timestamp}</div>
+            <div class="data-row"><span class="data-label">THREAT:</span> ${scenario}</div>
+            <div class="data-row"><span class="data-label">TACTIC:</span> ${atlas}</div>
+            <div class="data-row"><span class="data-label">MISUSE:</span> ${misuse}</div>
+            <div class="data-row"><span class="data-label">CONTROLS:</span> ${controls} (${effectiveness} Effectiveness)</div>
+            <div class="data-row"><span class="data-label">DECISION:</span> <span style="color: ${decision === 'Accept' ? '#00ff00' : decision === 'Mitigate' ? '#ffff00' : '#ff0000'}; font-weight:bold;">[ ${decision.toUpperCase()} ]</span></div>
+        `;
+
+        if (mitigation) {
+            document.getElementById('mitigation-content').innerHTML = `
+                <div class="data-row"><span class="data-label">CONTROL:</span> ${mitigationName}</div>
+                <div class="data-row"><span class="data-label">DETAILS:</span> ${mitigationDesc}</div>
+                <div class="data-row"><span class="data-label">REFERENCE:</span> <a href="${mitigationUrl}" target="_blank" class="mitigation-link">${mitigationUrl}</a></div>
+            `;
+        } else {
+            document.getElementById('mitigation-content').innerHTML = `<div>No specific ATLAS mitigation mapped.</div>`;
+        }
+
+        document.getElementById('json-output').textContent = JSON.stringify(assessmentRecord, null, 4);
+
+        // Show Report Section & Scroll
+        const reportSection = document.getElementById('report-section');
+        reportSection.style.display = 'block';
+        reportSection.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
